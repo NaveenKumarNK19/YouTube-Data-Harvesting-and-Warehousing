@@ -6,17 +6,17 @@ import pandas as pd
 import streamlit as st
 
 # API Key and details
-api_key = "AIzaSyC3woT4DX12HBKw2OP9ME81etR2aVZ1l74"
+api_key = "Your_API_Key"
 api_service_name = "youtube"
 api_version = "v3"
 youtube = build(api_service_name, api_version, developerKey=api_key)
 
 # Connection to PostgreSQL database
-projectA = psycopg2.connect(host="localhost",user='postgres',password= "NK19",database= "youtube_data" )
+projectA = psycopg2.connect(host="localhost",user='postgres',password= "Password",database= "Your_Database" )
 cursor = projectA.cursor()
 
 # Connection to MongoDB
-mongo_db = pymongo.MongoClient("mongodb+srv://naveenkumargr70:OWrYxZLLLqtkkXxR@cluster0.avd1vee.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongo_db = pymongo.MongoClient("Your_MongoDB_Client_str")
 
 # Function to fetch channel details
 def fetch_channel(youtube,channel_id):
