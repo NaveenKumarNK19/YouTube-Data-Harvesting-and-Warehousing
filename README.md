@@ -7,11 +7,11 @@ Welcome to our YouTube Data Harvesting and Warehousing project! This Python-base
 
 # Features
 
-Data Harvesting: Utilizes the YouTube Data API to fetch channel details, playlists, videos, and comments.
-Warehousing: Stores the harvested data in MongoDB and PostgreSQL databases for efficient data management.
-Streamlit Interface: Provides a streamlined web interface powered by Streamlit for easy data fetching, migration, and analysis.
-Analytical Queries: Offers various analytical queries to explore YouTube channel analytics and video insights.
-Scalable: Can handle large volumes of data efficiently, making it suitable for both small-scale and large-scale data analysis projects.
+1. Data Harvesting: Utilizes the YouTube Data API to fetch channel details, playlists, videos, and comments.
+2. Warehousing: Stores the harvested data in MongoDB and PostgreSQL databases for efficient data management.
+3. Streamlit Interface: Provides a streamlined web interface powered by Streamlit for easy data fetching, migration, and analysis.
+4. Analytical Queries: Offers various analytical queries to explore YouTube channel analytics and video insights.
+5. Scalable: Can handle large volumes of data efficiently, making it suitable for both small-scale and large-scale data analysis projects.
 
 # Usage
 
