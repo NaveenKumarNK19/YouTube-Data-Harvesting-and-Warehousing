@@ -18,6 +18,8 @@ Welcome to our YouTube Data Harvesting and Warehousing project! This Python-base
 Clone the repository to your local machine.
 Install the required dependencies using pip install -r requirements.txt.
 Obtain your YouTube Data API key and replace api_key in the code with your API key.
+Obtain your MongoDB Client string and replace it.
+Replace your SQL password and database name.
 Run the yt.py file to start the Streamlit web application.
 Use the web interface to fetch data, migrate it to databases, and perform analysis.
 
