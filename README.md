@@ -26,7 +26,7 @@ Use the web interface to fetch data, migrate it to databases, and perform analys
 # Requirements
 1. Python 3.x
 2. MongoDB
-3. ostgreSQL
+3. PostgreSQL
 
 # Credits
 This project was developed by me (Naveen) as a part of YouTube Data Harvesting and Warehousing.
