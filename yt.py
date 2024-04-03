@@ -171,6 +171,7 @@ def comment_details(youtube, video_id):
 
 # MongoDB database connection and caching decorator
 db = mongo_db["Youtube_data"]
+collection = db['YoutubeChannels']
 
 @st.cache_data
 
@@ -454,81 +455,78 @@ def display_comments():
 
 # Various analytical queries for YouTube data
 def one():
-    cursor.execute('''select title as Videos, channeltitle as channelName from videos;''')
+    cursor.execute('''select title, channeltitle from videos;''')
     projectA.commit()
     q1=cursor.fetchall()
-    q1=st.dataframe(q1)
-    return q1
+    st.write(pd.DataFrame(q1, columns=['Videos','Channel Name']))
 
 def two():
-    cursor.execute('''select channel_Name as ChannelName, total_Videos as No_of_Videos from youtube_channel order by total_Videos desc limit                       1;''')
+    cursor.execute('''select channel_Name , total_Videos from youtube_channel order by total_Videos desc limit 1;''')
     projectA.commit()
     q2=cursor.fetchall()
-    q2=st.dataframe(q2)
-    return q2
+    st.write(pd.DataFrame(q2, columns=['Channel Name','Video Count']))
 
 def three():
-    cursor.execute('''select viewCount as Views, channelTitle as ChannelName, title as Name from videos where viewCount is not null order by                       viewCount desc limit 10;''')
+    cursor.execute('''select title , channelTitle , viewCount from videos where viewCount is not null order by viewCount desc limit 10;''')
     projectA.commit()
     q3=cursor.fetchall()
-    q3=st.dataframe(q3)
-    return q3
+    st.write(pd.DataFrame(q3, columns=['Video Title','Channel Name','Views Count']))
 
 def four():
-    cursor.execute('''select title as Name, channelTitle as ChannelName, commentCount as No_of_Comments from videos
-                      where commentCount is not null;''')
+    cursor.execute('''select title , channelTitle , commentCount from videos where commentCount is not null;''')
     projectA.commit()
     q4=cursor.fetchall()
-    q4=st.dataframe(q4)
-    return q4
+    st.write(pd.DataFrame(q4, columns=['Video Title','Channel Name','Comments Count']))
 
 def five():
-    cursor.execute('''select title as Video, channelTitle as ChannelName, likeCount as Likes from videos where likeCount is not null order                         by likeCount desc;''')
+    cursor.execute('''select title , channelTitle , likeCount from videos where likeCount is not null order by likeCount desc;''')
     projectA.commit()
     q5=cursor.fetchall()
-    q5=st.dataframe(q5)
-    return q5
+    st.write(pd.DataFrame(q5, columns=['Video Title','Channel Name','Likes']))
 
 def six():
-    cursor.execute('''select channelTitle as ChannelName, title as Name, likeCount as Likes from videos;''')
+    cursor.execute('''select title , channelTitle , likeCount from videos;''')
     projectA.commit()
     q6=cursor.fetchall()
-    q6=st.dataframe(q6)
-    return q6
+    st.write(pd.DataFrame(q6, columns=['Video Title','Channel Name','Likes']))
 
 def seven():
-    cursor.execute('''select channel_Name as ChannelName, views as ChannelViews from youtube_channel;''')
+    cursor.execute('''select channel_Name , views from youtube_channel;''')
     projectA.commit()
     q7=cursor.fetchall()
-    q7=st.dataframe(q7)
-    return q7
+    st.write(pd.DataFrame(q7, columns=['Channel Name','Channel Views']))
 
 def eight():
-    cursor.execute('''select channelTitle as ChannelName, title as Name, publishedAt as ReleasedOn from videos where extract(year from                             publishedAt) = 2022;''')
+    cursor.execute('''select channelTitle , title , publishedAt from videos where extract(year from publishedAt) = 2022;''')
     projectA.commit()
     q8=cursor.fetchall()
-    q8=st.dataframe(q8)
-    return q8
+    st.write(pd.DataFrame(q8, columns=['Channel Name','Video Title','Released On']))
 
 def ten():
-    cursor.execute('''select title as Name, channelTitle as ChannelName, commentCount as Comments from videos
-                      where commentCount is not null order by commentCount desc;''')
+    cursor.execute('''select title , channelTitle , commentCount from videos where commentCount is not null order by commentCount desc;''')
     projectA.commit()
     q10=cursor.fetchall()
-    q10=st.dataframe(q10)
-    return q10
+    st.write(pd.DataFrame(q10, columns=['Video Title','Channel Name','Comments Count']))
 
 # Streamlit interface
+st.set_page_config(layout="wide")
 st.title("YOUTUBE DATA HARVESTING")
 st.caption("Get Datas from the selected channel")
 
-getting_input = st.text_input("Enter the channel ID")
-st.write("You selected:", getting_input)
+channel_id = st.text_input("Enter Channel ID(s) [Separate by comma( , )]")
+channels = channel_id.split(',')
+channels = [ch.strip() for ch in channels if ch]
 
 # Button to fetch and store data
-if st.button("Fetch and store data"):
-    output = channel_Details(getting_input)
-    st.write(output)
+if st.button("Fetch and Save Data"):
+    for channel in channels:
+        query = {'channel_Id': channel}
+        document = collection.find_one(query)
+        if document:
+            st.write("Channel Details already exists")
+        else:
+            output = channel_Details(channel)
+            st.write(output)
 
 # Button to migrate data
 st.write("Click here to Migrate Data")
