@@ -4,19 +4,20 @@ import pymongo
 import psycopg2
 import pandas as pd
 import streamlit as st
+from datetime import timedelta
 
 # API Key and details
-api_key = "Your_API_Key"
+api_key = "AIzaSyC3woT4DX12HBKw2OP9ME81etR2aVZ1l74"
 api_service_name = "youtube"
 api_version = "v3"
 youtube = build(api_service_name, api_version, developerKey=api_key)
 
 # Connection to PostgreSQL database
-projectA = psycopg2.connect(host="localhost",user='postgres',password= "Password",database= "Your_Database" )
+projectA = psycopg2.connect(host="localhost",user='postgres',password= "NK19",database= "youtube_data" )
 cursor = projectA.cursor()
 
 # Connection to MongoDB
-mongo_db = pymongo.MongoClient("Your_MongoDB_Client_str")
+mongo_db = pymongo.MongoClient("mongodb+srv://naveenkumargr70:OWrYxZLLLqtkkXxR@cluster0.avd1vee.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
 # Function to fetch channel details
 def fetch_channel(youtube,channel_id):
@@ -402,56 +403,48 @@ def display_youtube_channel():
     try:
         cursor.execute("select * from youtube_channel;")
         a = cursor.fetchall()
-        a = st.dataframe(a)
-        return a
+        st.write(pd.DataFrame(a, columns=['Channel Name', 'Chennal id', 'Subscribers', 'Views', 'Total Videos', 'Playlist id', 'Channel Description']))
     except:
         projectA.rollback()
         cursor.execute("select * from youtube_channel;")
         a = cursor.fetchall()
-        a = st.dataframe(a)
-        return a
+        st.write(pd.DataFrame(a, columns=['Channel Name', 'Chennal id', 'Subscribers', 'Views', 'Total Videos', 'Playlist id', 'Channel Description']))
 
 # Function to display playlist data in Streamlit
 def display_playlist():
     try:
         cursor.execute("select * from playlists;")
         b = cursor.fetchall()
-        b = st.dataframe(b)
-        return b
+        st.write(pd.DataFrame( b, columns=['Playlist id', 'Title', 'Channel id', 'Channel Name', 'Published Date', 'Video Count']))
     except:
         projectA.rollback()
         cursor.execute("select * from playlists;")
         b = cursor.fetchall()
-        b = st.dataframe(b)
-        return b
+        st.write(pd.DataFrame( b, columns=['Playlist id', 'Title', 'Channel id', 'Channel Name', 'Published Date', 'Video Count']))
 
 # Function to display video data in Streamlit
 def display_videos():
     try:
         cursor.execute("select * from videos;")
         c = cursor.fetchall()
-        c = st.dataframe(c)
-        return c
+        st.write(pd.DataFrame( c, columns=['Video id', 'Channel Title', 'Title', 'Description', 'Tags', "Published Date", "Channel id", "View count", 'Like count', 'Favourite count', 'Comment Count', 'Duration', 'Definition', 'Caption']))
     except:
         projectA.rollback()
         cursor.execute("select * from videos;")
         c = cursor.fetchall()
-        c = st.dataframe(c)
-        return c
+        st.write(pd.DataFrame( c, columns=['Video id', 'Channel Title', 'Title', 'Description', 'Tags', "Published Date", "Channel id", "View count", 'Like count', 'Favourite count', 'Comment Count', 'Duration', 'Definition', 'Caption']))
 
 # Function to display comment data in Streamlit
 def display_comments():
     try:
         cursor.execute("select * from comments;")
         d = cursor.fetchall()
-        d = st.dataframe(d)
-        return d
+        st.write(pd.DataFrame( d, columns=['Comment id', 'Comment Text', 'Video id', 'Published Date']))
     except:
         projectA.rollback()
         cursor.execute("select * from comments;")
         d = cursor.fetchall()
-        d = st.dataframe(d)
-        return d
+        st.write(pd.DataFrame( d, columns=['Comment id', 'Comment Text', 'Video id', 'Published Date']))
 
 # Various analytical queries for YouTube data
 def one():
@@ -501,6 +494,55 @@ def eight():
     projectA.commit()
     q8=cursor.fetchall()
     st.write(pd.DataFrame(q8, columns=['Channel Name','Video Title','Released On']))
+
+def parse_duration(duration_str):
+    """Converts YouTube duration string (e.g., PT31S) to timedelta."""
+    duration_str = duration_str[2:]  # Remove 'PT' from the beginning
+    total_seconds = 0
+
+    if 'H' in duration_str:
+        hours, duration_str = duration_str.split('H')
+        total_seconds += int(hours) * 3600
+
+    if 'M' in duration_str:
+        minutes, duration_str = duration_str.split('M')
+        total_seconds += int(minutes) * 60
+
+    if 'S' in duration_str:
+        seconds = duration_str.replace('S', '')
+        total_seconds += int(seconds)
+
+    return timedelta(seconds=total_seconds)
+
+def average_duration_per_channel():
+    try:
+        # Query to fetch channelTitle and duration from videos table
+        cursor.execute('''
+            SELECT channelTitle, duration
+            FROM videos
+        ''')
+
+        # Fetch all rows
+        rows = cursor.fetchall()
+
+        # Convert to DataFrame
+        df = pd.DataFrame(rows, columns=['channelTitle', 'duration'])
+
+        # Convert duration string to timedelta
+        df['duration'] = df['duration'].apply(parse_duration)
+
+        # Calculate average duration per channelTitle
+        avg_durations = df.groupby('channelTitle')['duration'].mean()
+
+        return avg_durations
+
+    except Exception as e:
+        print(f"Error fetching average durations: {e}")
+        return None
+
+def nine():
+    avg_durations = average_duration_per_channel()
+    st.write(avg_durations)
 
 def ten():
     cursor.execute('''select title , channelTitle , commentCount from videos where commentCount is not null order by commentCount desc;''')
@@ -558,6 +600,7 @@ query = st.selectbox(
         ('None','Names of all the videos and their corresponding channels', 'Channel having the most number of videos',
          'Top 10 most viewed videos', 'Number of Comments in each video', 'Videos with Highest Likes' ,'Likes of all videos', 
          'Total number of views for each channel', 'Names of the channels that have published videos in the year 2022',
+         'What is the average duration of all videos in each channel, and what are their corresponding channel names?',
          'Videos with highest number of comments'))
 
 st.write('You selected: ',query)
@@ -581,5 +624,7 @@ elif query=='Total number of views for each channel':
     seven()
 elif query=='Names of the channels that have published videos in the year 2022':
     eight()
+elif query == 'What is the average duration of all videos in each channel, and what are their corresponding channel names?':
+    nine()
 elif query=='Videos with highest number of comments':
     ten()
