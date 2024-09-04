@@ -7,7 +7,7 @@ import streamlit as st
 from datetime import timedelta
 
 # API Key and details
-api_key = "AIzaSyC3woT4DX12HBKw2OP9ME81etR2aVZ1l74"
+api_key = "Api_key"
 api_service_name = "youtube"
 api_version = "v3"
 youtube = build(api_service_name, api_version, developerKey=api_key)
