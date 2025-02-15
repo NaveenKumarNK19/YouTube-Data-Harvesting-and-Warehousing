@@ -13,11 +13,11 @@ api_version = "v3"
 youtube = build(api_service_name, api_version, developerKey=api_key)
 
 # Connection to PostgreSQL database
-projectA = psycopg2.connect(host="localhost",user='postgres',password= "NK19",database= "youtube_data" )
+projectA = psycopg2.connect(host="localhost",user='postgres',password= "********",database= "youtube_data" )
 cursor = projectA.cursor()
 
 # Connection to MongoDB
-mongo_db = pymongo.MongoClient("mongodb+srv://naveenkumargr70:OWrYxZLLLqtkkXxR@cluster0.avd1vee.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongo_db = pymongo.MongoClient("mongodb_key")
 
 # Function to fetch channel details
 def fetch_channel(youtube,channel_id):
